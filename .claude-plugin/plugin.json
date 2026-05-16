@@ -1,0 +1,10 @@
+{
+  "name": "claude-workflow-plugin",
+  "version": "1.0.0",
+  "description": "Multi-phase agent orchestration for Claude Code. Inspired by Bun's migration workflow pattern. Bootstraps .claude/workflows/ in any project with TypeScript runtime, JSON Schema validation, and parallel agent execution.",
+  "author": {
+    "name": "xirothedev"
+  },
+  "license": "MIT",
+  "keywords": ["workflow", "orchestration", "agents", "automation", "pipeline", "bun"]
+}
