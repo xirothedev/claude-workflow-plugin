@@ -1,0 +1,31 @@
+{
+  "id": "rest-api-bun-hono",
+  "domain": "rest-api",
+  "summary": "Todo REST API with a swappable storage layer and a minimal web frontend",
+  "stack": ["bun", "hono", "typescript", "zod"],
+  "architecture": {
+    "backend": "route -> service -> store; store is an interface so an in-memory impl swaps for a DB later",
+    "frontend": "plain TypeScript + DOM, no build step",
+    "designSystem": "single accent color, system font, 8px spacing scale",
+    "notes": ["the zod schema doubles as the API contract and the test fixture"]
+  },
+  "workflows": [
+    { "phase": "scaffold", "archetype": "single-agent", "agents": 1, "notes": "project skeleton + tsconfig" },
+    { "phase": "backend-impl", "archetype": "verified-swarm", "agents": 18, "notes": "3-vote verify per route" },
+    { "phase": "frontend-impl", "archetype": "multi-stage", "agents": 9 },
+    { "phase": "test-sweep", "archetype": "survey-round", "agents": 22, "notes": "looped until 0 failing routes" }
+  ],
+  "outcome": { "converged": true, "rounds": 3, "totalAgents": 50, "note": "test-sweep converged in 3 rounds" },
+  "lessons": [
+    "Defining the storage layer as an interface up front let backend-impl agents work without waiting on a database decision.",
+    "3-vote verify caught two routes that returned 200 on a missing id instead of 404.",
+    "Feeding the zod schema into every agent prompt removed almost all schema-mismatch retries."
+  ],
+  "pitfalls": [
+    "The first test-sweep round oscillated because agents fixed and re-broke the same route; deduping targets by route path fixed it."
+  ],
+  "tags": ["crud", "api", "testing", "convergence"],
+  "contributor": { "name": "xirothedev", "url": "https://github.com/xirothedev" },
+  "contributedAt": "2026-05-16",
+  "license": "CC0-1.0"
+}

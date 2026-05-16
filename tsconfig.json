@@ -11,5 +11,5 @@
     "skipLibCheck": true,
     "types": ["bun"]
   },
-  "include": ["skills/**/*.ts", "awesome/**/*.ts"]
+  "include": ["skills/**/*.ts", "awesome/**/*.ts", "dataset/**/*.ts", "mcp/**/*.ts"]
 }

@@ -1,0 +1,30 @@
+{
+  "id": "cli-tool-zig-to-rust-port",
+  "domain": "language-port",
+  "summary": "Porting a mid-size CLI tool from Zig to Rust, module by module",
+  "stack": ["rust", "cargo", "zig", "clap"],
+  "architecture": {
+    "backend": "n/a — CLI; modules ported in dependency order, leaf crates first",
+    "frontend": "n/a",
+    "notes": ["each Zig module became one Rust module with a parity test"]
+  },
+  "workflows": [
+    { "phase": "classify", "archetype": "parallel-swarm", "agents": 30, "notes": "classify each pointer field's ownership" },
+    { "phase": "port", "archetype": "verified-swarm", "agents": 120, "notes": "3-vote verify per module" },
+    { "phase": "panic-sweep", "archetype": "survey-round", "agents": 210, "notes": "probe CLI commands, fix unique panic locations" },
+    { "phase": "test-sweep", "archetype": "survey-round", "agents": 260 }
+  ],
+  "outcome": { "converged": true, "rounds": 8, "totalAgents": 620, "note": "panic-sweep hit MAX_ROUNDS once before targets were deduped" },
+  "lessons": [
+    "Deduping panics by source location instead of by failing command meant one fix per root cause, not one per symptom.",
+    "Verify-until-dry inside each round caught bugs that earlier fixes exposed, without running a fixed number of passes.",
+    "Adversarial verify rejected several 'fixes' that suppressed a crash with an early return instead of solving it."
+  ],
+  "pitfalls": [
+    "Without a MAX_ROUNDS cap an early panic-sweep loop would not terminate; capping it and reporting non-convergence surfaced a genuinely hard module."
+  ],
+  "tags": ["port", "migration", "convergence", "panic", "dedup"],
+  "contributor": { "name": "xirothedev", "url": "https://github.com/xirothedev" },
+  "contributedAt": "2026-05-16",
+  "license": "CC0-1.0"
+}

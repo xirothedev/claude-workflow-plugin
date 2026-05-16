@@ -1,0 +1,58 @@
+name: Workflow / archetype improvement
+description: Propose a new workflow archetype, or improve an existing one.
+title: "[workflow] <short proposal>"
+labels: ["workflow", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this to propose a new archetype template or change an existing one
+        (`skills/workflow/templates/`). Ground the proposal in evidence —
+        ideally dataset entries that show the need.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - New archetype template
+        - Change to an existing archetype
+        - Change to the orchestrate protocol
+        - Change to a correctness mechanism
+    validations:
+      required: true
+  - type: input
+    id: target
+    attributes:
+      label: Target
+      description: Which template / skill / mechanism this affects.
+      placeholder: skills/workflow/templates/verified-swarm.workflow.ts
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What orchestration pattern is missing or weak today? What goes wrong without this change?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: The change. For a new archetype describe its phases, stages, and convergence criterion.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Dataset entry ids, run logs, or examples that motivate this. Search with `bun run dataset/search.ts`.
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Confirm
+      options:
+        - label: This keeps the static-plan model (agents enumerable up front; loops are Claude-driven).
+          required: true

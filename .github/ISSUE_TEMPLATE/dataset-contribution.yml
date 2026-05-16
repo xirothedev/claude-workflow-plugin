@@ -1,0 +1,108 @@
+name: Dataset contribution
+description: Contribute a real orchestrate-run record to the workflow dataset.
+title: "[dataset] <project domain> — <one-line summary>"
+labels: ["dataset"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for growing the dataset. Each entry is one real project — its
+        stack, architecture, the workflows used, the outcome, and the lessons.
+        A maintainer will turn this into `dataset/entries/<id>.json`.
+
+        Prefer a PR? Add the JSON file yourself — see `dataset/README.md`.
+  - type: input
+    id: id
+    attributes:
+      label: Entry id
+      description: kebab-case, unique. Becomes the file name.
+      placeholder: rest-api-bun-hono
+    validations:
+      required: true
+  - type: input
+    id: domain
+    attributes:
+      label: Domain
+      description: Project category.
+      placeholder: rest-api, saas-dashboard, cli-tool, language-port, data-pipeline
+    validations:
+      required: true
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: One line describing the project.
+    validations:
+      required: true
+  - type: input
+    id: stack
+    attributes:
+      label: Stack
+      description: Comma-separated languages, frameworks, runtimes, key libraries.
+      placeholder: bun, hono, typescript, zod
+    validations:
+      required: true
+  - type: textarea
+    id: architecture
+    attributes:
+      label: Architecture
+      description: Backend layering, frontend architecture, design system. Use "n/a" where it does not apply.
+      placeholder: |
+        backend: route -> service -> store; store is an interface
+        frontend: plain TypeScript + DOM
+        designSystem: single accent color, 8px spacing scale
+    validations:
+      required: true
+  - type: textarea
+    id: workflows
+    attributes:
+      label: Workflows
+      description: One line per phase — phase, archetype, agent count, notes.
+      placeholder: |
+        scaffold       single-agent    1
+        backend-impl   verified-swarm  18   3-vote verify per route
+        test-sweep     survey-round    22   looped until 0 failing routes
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: Did it converge? Rounds for the longest sweep phase, total agents, any note.
+      placeholder: |
+        converged: yes
+        rounds: 3
+        totalAgents: 50
+    validations:
+      required: true
+  - type: textarea
+    id: lessons
+    attributes:
+      label: Lessons
+      description: What worked. One best practice per line — this is the searchable payload.
+    validations:
+      required: true
+  - type: textarea
+    id: pitfalls
+    attributes:
+      label: Pitfalls
+      description: What went wrong and how it was caught. One per line. Optional but valuable.
+    validations:
+      required: false
+  - type: input
+    id: contributor
+    attributes:
+      label: Contributor
+      description: Name and optional profile URL.
+      placeholder: yourname — https://github.com/yourname
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Confirm
+      options:
+        - label: The outcome and pitfalls are honest — a failed run with a clear lesson is welcome.
+          required: true
+        - label: I agree to license this entry under CC0-1.0.
+          required: true

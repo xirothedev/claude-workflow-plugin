@@ -9,5 +9,11 @@
   "repository": "https://github.com/xirothedev/claude-workflow-plugin",
   "license": "MIT",
   "keywords": ["workflow", "orchestration", "agents", "automation", "pipeline", "bun"],
-  "skills": ["./skills/workflow", "./skills/orchestrate"]
+  "skills": ["./skills/workflow", "./skills/orchestrate", "./skills/dataset"],
+  "mcpServers": {
+    "dataset-server": {
+      "command": "bun",
+      "args": ["run", "${CLAUDE_PLUGIN_ROOT}/mcp/dataset-server.ts"]
+    }
+  }
 }
