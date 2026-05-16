@@ -61,7 +61,9 @@ export function buildPlan(mod: WorkflowModule, args: Record<string, unknown>): W
   for (const p of phaseOrder) p.agents = agents.filter((a) => a.phase === p.title).map((a) => a.id);
   for (let i = 1; i < stages.length; i++)
     for (const id of stages[i]) { const c = agents.find((a) => a.id === id); if (c) c.dependsOn = stages[i - 1]; }
-  return { workflow: mod.meta.name, args, phases: phaseOrder, agents, stages };
+  // Return copies — `agents`/`phaseOrder`/`stages` are module-level and reset on
+  // the next buildPlan call, which would otherwise corrupt a held-onto plan.
+  return { workflow: mod.meta.name, args, phases: [...phaseOrder], agents: [...agents], stages: stages.map((s) => [...s]) };
 }
 
 export function formatPlan(plan: WorkflowPlan): string {

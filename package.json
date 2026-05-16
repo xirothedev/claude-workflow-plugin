@@ -1,0 +1,15 @@
+{
+  "name": "claude-workflow-plugin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dev tooling for the claude-workflow-plugin repo (typecheck + tests). Not shipped to plugin consumers.",
+  "type": "module",
+  "scripts": {
+    "test": "bun test skills/workflow/tests",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5"
+  }
+}

@@ -54,8 +54,18 @@ Non-destructive: existing files are NEVER overwritten.
 1. Build plan: `bun run .claude/workflows/cli.ts show <name> '<args-json>'`
 2. Parse plan output
 3. Execute stage by stage (agents in same stage run in parallel)
-4. Validate each agent output against schema
+4. Validate each agent output against schema; on failure, retry the agent once with the validation errors fed back
 5. Report results
+
+**Adversarial verify** — for `verified-swarm`/`survey-round`, a Verify phase runs
+several independent voters per item. Run that item's Fix agent **only if the
+majority rejected it**; skip the rest. This catches agents that suppress errors
+instead of fixing them.
+
+**Convergence loop** — `survey-round` is the plan for *one round* only. The
+static-plan runtime cannot express a round-loop, so drive it yourself: run the
+round, read the Survey agent's `remaining`, and repeat until `remaining == 0` or a
+`MAX_ROUNDS` cap. The `orchestrate` skill describes the full loop.
 
 Agent invocation:
 ```
@@ -76,7 +86,12 @@ Agent({
 
 ### `create <name> [template]` — Create new workflow from template
 
-1. Pick template: single-agent, multi-stage, parallel-swarm
+1. Pick template:
+   - `single-agent` — one agent, schema-validated output
+   - `multi-stage` — implement → verify → fix pipeline
+   - `parallel-swarm` — N agents in parallel + aggregate
+   - `verified-swarm` — parallel implement + 3-vote adversarial verify + conditional fix
+   - `survey-round` — one round of a convergence loop (survey → fix → verify)
 2. Copy `<skill-dir>/skills/workflow/templates/<template>.workflow.ts` to `.claude/workflows/<name>.workflow.ts`
 3. Rewrite the import: `../src/types.ts` → `./src/types.ts` (templates live one dir deeper than root workflows)
 4. Prompt user for customization
