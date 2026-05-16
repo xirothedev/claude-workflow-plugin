@@ -223,7 +223,21 @@ This separation means workflows are **inspectable** before execution and **testa
 
 ## Installing as a Claude Code Plugin
 
-Add to your project's `.claude/settings.json`:
+This repo is also a plugin **marketplace** (`.claude-plugin/marketplace.json`).
+Install from inside Claude Code:
+
+```
+/plugin marketplace add github:xirothedev/claude-workflow-plugin
+/plugin install claude-workflow-plugin@claude-workflow-plugin
+```
+
+`/plugin marketplace add` registers the repo; `/plugin install` adds the plugin.
+Updates pull through `/plugin marketplace update claude-workflow-plugin`.
+
+### Local development
+
+To run the plugin from a working copy without the marketplace, add it to your
+project's `.claude/settings.json`:
 
 ```json
 {
@@ -247,10 +261,11 @@ ln -s /path/to/claude-workflow-plugin ~/.claude/plugins/workflow
 ```
 claude-workflow-plugin/
 ├── .claude-plugin/
-│   └── plugin.json                    # Plugin manifest
+│   ├── plugin.json                    # Plugin manifest
+│   └── marketplace.json               # Marketplace manifest (/plugin install)
 ├── skills/workflow/
 │   ├── SKILL.md                       # Skill definition (init, run, list, plan, create)
-│   ├── runtime/
+│   ├── src/
 │   │   ├── types.ts                   # TypeScript type definitions
 │   │   ├── runtime.ts                 # Plan builder, formatter, module loader
 │   │   └── validator.ts              # Minimal JSON Schema validator

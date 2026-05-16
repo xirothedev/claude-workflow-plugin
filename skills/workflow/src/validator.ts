@@ -6,13 +6,31 @@ export function validate(value: unknown, schema: JsonSchema): ValidationResult {
   return errors.length > 0 ? { ok: false, errors } : { ok: true, value };
 }
 
+/** True if `value` validates against `schema` with zero errors. */
+function matches(value: unknown, schema: JsonSchema): boolean {
+  const e: string[] = [];
+  walk(value, schema, "$", e);
+  return e.length === 0;
+}
+
 function walk(value: unknown, schema: JsonSchema, path: string, errors: string[]): void {
+  // oneOf — exactly one branch must match (JSON Schema semantics).
   if ("oneOf" in schema) {
-    if (!schema.oneOf.some((s) => { const e: string[] = []; walk(value, s, path, e); return e.length === 0; }))
-      errors.push(`${path}: no oneOf match`);
+    const hits = schema.oneOf.filter((s) => matches(value, s)).length;
+    if (hits !== 1) errors.push(`${path}: expected exactly 1 oneOf match, got ${hits}`);
     return;
   }
-  if ("anyOf" in schema) return;
+  // anyOf — at least one branch must match.
+  if ("anyOf" in schema) {
+    if (!schema.anyOf.some((s) => matches(value, s))) errors.push(`${path}: no anyOf match`);
+    return;
+  }
+  // Bare enum schema ({ enum: [...] } with no `type`).
+  if ("enum" in schema && !("type" in schema)) {
+    if (!schema.enum.includes(value as string | number | boolean))
+      errors.push(`${path}: ${JSON.stringify(value)} not in [${schema.enum.join(", ")}]`);
+    return;
+  }
   if (!("type" in schema)) return;
 
   switch (schema.type) {
@@ -28,6 +46,13 @@ function walk(value: unknown, schema: JsonSchema, path: string, errors: string[]
       if (schema.properties) {
         for (const [key, prop] of Object.entries(schema.properties)) {
           if (key in obj) walk(obj[key], prop, `${path}.${key}`, errors);
+        }
+      }
+      // Reject unknown keys when additionalProperties is explicitly false.
+      if (schema.additionalProperties === false) {
+        const known = schema.properties ? Object.keys(schema.properties) : [];
+        for (const key of Object.keys(obj)) {
+          if (!known.includes(key)) errors.push(`${path}.${key}: unexpected property`);
         }
       }
       break;

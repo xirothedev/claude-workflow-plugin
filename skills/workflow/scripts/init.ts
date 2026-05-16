@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, symlinkSync, writeFileSync, copyFileSync, readdi
 import { resolve, relative } from "node:path";
 
 const SKILL_DIR = resolve(import.meta.dir, "..");
-const RUNTIME_DIR = resolve(SKILL_DIR, "runtime");
+const RUNTIME_DIR = resolve(SKILL_DIR, "src");
 const TEMPLATES_DIR = resolve(SKILL_DIR, "templates");
 
 const CLI_CONTENT = `import { loadWorkflow, buildPlan, formatPlan } from "./src/runtime.ts";
@@ -60,10 +60,12 @@ bun run .claude/workflows/cli.ts list
 bun run .claude/workflows/cli.ts show <name> '<args>'
 bun run .claude/workflows/cli.ts plan <name> '<args>'
 bun run .claude/workflows/cli.ts validate <name> '<args>'
+bun run .claude/workflows/cli.ts meta <name>
 \`\`\`
 
 ## Create
-Copy from templates/ to .claude/workflows/<name>.workflow.ts
+Copy from templates/ to .claude/workflows/<name>.workflow.ts,
+then rewrite the import \`../src/types.ts\` -> \`./src/types.ts\`.
 
 ## Regenerate
 Re-run init. Existing files never overwritten.
@@ -88,8 +90,15 @@ for (const file of ["types.ts", "runtime.ts", "validator.ts"]) {
   const source = resolve(RUNTIME_DIR, file);
   if (existsSync(target)) { console.log(`  exists:  src/${file}`); continue; }
   if (!existsSync(source)) { console.log(`  missing: ${source}`); continue; }
-  symlinkSync(source, target);
-  console.log(`  linked:  src/${file}`);
+  // Symlink keeps runtime as single source of truth. Falls back to copy when
+  // symlinks are unavailable (Windows without privilege, restricted FS).
+  try {
+    symlinkSync(source, target);
+    console.log(`  linked:  src/${file}`);
+  } catch {
+    copyFileSync(source, target);
+    console.log(`  copied:  src/${file} (symlink unavailable — re-run init after plugin updates)`);
+  }
 }
 
 if (existsSync(TEMPLATES_DIR)) {

@@ -1,4 +1,4 @@
-import type { JsonSchema, WorkflowContext, WorkflowMeta } from "./src/types.ts";
+import type { JsonSchema, WorkflowContext, WorkflowMeta } from "../src/types.ts";
 
 export const meta: WorkflowMeta = {
   name: "single-agent",

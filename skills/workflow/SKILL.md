@@ -20,6 +20,17 @@ Portable multi-phase agent orchestration. Bootstraps `.claude/workflows/` in any
 
 ## Commands
 
+Two kinds. **Skill actions** (`init`, `run`, `create`) are orchestrated by Claude.
+**CLI subcommands** are run via `bun run .claude/workflows/cli.ts <subcommand>`:
+
+| CLI subcommand | Purpose |
+|----------------|---------|
+| `list` | List discoverable workflows |
+| `plan <name> '<args>'` | Build plan as JSON |
+| `show <name> '<args>'` | Build plan in readable form |
+| `validate <name> '<args>'` | Validate args against `args_schema` |
+| `meta <name>` | Print workflow metadata |
+
 ### `init` — Bootstrap workflow system in current project
 
 Run: `bun run <skill-dir>/skills/workflow/scripts/init.ts`
@@ -60,14 +71,16 @@ Agent({
 
 ### `plan <workflow> [args]` — Build plan without executing
 
-`bun run .claude/workflows/cli.ts show <name> '<args-json>'`
+- Readable: `bun run .claude/workflows/cli.ts show <name> '<args-json>'`
+- JSON: `bun run .claude/workflows/cli.ts plan <name> '<args-json>'`
 
 ### `create <name> [template]` — Create new workflow from template
 
 1. Pick template: single-agent, multi-stage, parallel-swarm
 2. Copy `<skill-dir>/skills/workflow/templates/<template>.workflow.ts` to `.claude/workflows/<name>.workflow.ts`
-3. Prompt user for customization
-4. Write with TODO markers
+3. Rewrite the import: `../src/types.ts` → `./src/types.ts` (templates live one dir deeper than root workflows)
+4. Prompt user for customization
+5. Write with TODO markers
 
 ## How to discover <skill-dir>
 

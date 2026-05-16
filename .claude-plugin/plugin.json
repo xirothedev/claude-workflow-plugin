@@ -5,6 +5,9 @@
   "author": {
     "name": "xirothedev"
   },
+  "homepage": "https://github.com/xirothedev/claude-workflow-plugin",
+  "repository": "https://github.com/xirothedev/claude-workflow-plugin",
   "license": "MIT",
-  "keywords": ["workflow", "orchestration", "agents", "automation", "pipeline", "bun"]
+  "keywords": ["workflow", "orchestration", "agents", "automation", "pipeline", "bun"],
+  "skills": ["./skills/workflow"]
 }

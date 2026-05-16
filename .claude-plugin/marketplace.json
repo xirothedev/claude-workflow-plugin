@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-workflow-plugin",
+  "description": "Marketplace for claude-workflow-plugin — portable multi-phase agent orchestration.",
+  "owner": {
+    "name": "xirothedev",
+    "url": "https://github.com/xirothedev"
+  },
+  "plugins": [
+    {
+      "name": "claude-workflow-plugin",
+      "source": "./",
+      "description": "Multi-phase agent orchestration for Claude Code. Bootstraps .claude/workflows/ in any project with a TypeScript runtime, JSON Schema validation, and parallel agent execution.",
+      "category": "automation",
+      "homepage": "https://github.com/xirothedev/claude-workflow-plugin"
+    }
+  ]
+}

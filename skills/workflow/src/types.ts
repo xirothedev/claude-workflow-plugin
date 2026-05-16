@@ -4,6 +4,7 @@ export type JsonSchema =
   | { type: "integer"; description?: string }
   | { type: "boolean"; description?: string }
   | { type: "array"; items: JsonSchema; description?: string }
+  | { enum: (string | number | boolean)[]; description?: string }
   | { oneOf: JsonSchema[] }
   | { anyOf: JsonSchema[] };
 
