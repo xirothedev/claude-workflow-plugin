@@ -7,14 +7,14 @@ Define workflows as TypeScript modules. The runtime builds an orchestration plan
 ## How It Works
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌──────────────────┐
+┌──────────────┐     ┌───────────────┐     ┌──────────────────┐
 │  Workflow    │────>│  Plan Builder │────>│  Claude Code     │
 │  (*.ts)      │     │  (Bun runtime)│     │  (Agent tool)    │
 │              │     │               │     │                  │
 │ meta +       │     │ Agents,       │     │ Spawns agents,   │
 │ execute()    │     │ schemas,      │     │ validates JSON,  │
 │              │     │ stages, deps  │     │ chains results   │
-└─────────────┘     └──────────────┘     └──────────────────┘
+└──────────────┘     └───────────────┘     └──────────────────┘
 ```
 
 1. **Write** a workflow as a TypeScript module (`*.workflow.ts`)
@@ -27,6 +27,23 @@ Define workflows as TypeScript modules. The runtime builds an orchestration plan
 
 - [Bun](https://bun.sh) runtime
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI
+
+### Install as a Claude Code plugin (recommended)
+
+This repo is a Claude Code plugin **marketplace**. From inside Claude Code:
+
+```
+/plugin marketplace add github:xirothedev/claude-workflow-plugin
+/plugin install claude-workflow-plugin@claude-workflow-plugin
+```
+
+`/plugin marketplace add` registers the repo; `/plugin install` adds the plugin.
+The `workflow` skill is then available in every session — ask Claude to
+"init workflows" to bootstrap a project. Pull updates with:
+
+```
+/plugin marketplace update claude-workflow-plugin
+```
 
 ### Install in a Project
 
