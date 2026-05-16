@@ -181,6 +181,38 @@ The correctness mechanisms it applies — multi-vote verify, verify-until-dry,
 explicit convergence — are distilled from Bun PR #30412 in
 `skills/orchestrate/references/correctness.md`.
 
+## Dataset: best practices from real runs
+
+The plugin ships a **dataset** of real orchestrate-run records under `dataset/`.
+Each entry is one project — its domain, stack, architecture, the workflows used,
+the outcome, and the **lessons** that worked. `orchestrate` searches it before
+designing architecture and synthesising workflows, so every new project starts
+from accumulated experience instead of a blank page.
+
+Search it three ways — all over the same scoring in `dataset/lib.ts`:
+
+```bash
+# CLI
+bun run dataset/search.ts '{"domain":"rest-api","stack":["bun"],"keywords":["auth"]}'
+```
+
+- **MCP** — the plugin registers a `dataset-server` MCP server with the tools
+  `dataset_search`, `dataset_get`, `dataset_stats`.
+- **`dataset` skill** — tells Claude when and how to search, and helps you
+  contribute. Ask *"search the dataset for X"* or *"contribute this to the dataset"*.
+
+### Contributing
+
+The dataset gets richer as people add real runs. After a project ships:
+
+1. Add `dataset/entries/<id>.json` — see `dataset/README.md` and `schema.json`.
+2. `bun run dataset/validate.ts` must print `N/N entries valid`.
+3. Open a PR, or file a **Dataset contribution** issue
+   (`.github/ISSUE_TEMPLATE/`) and let a maintainer add it.
+
+Workflow/archetype improvements have their own issue form. CI typechecks, runs
+the tests, and validates every dataset entry on each PR.
+
 ## Writing Custom Workflows
 
 Create `.claude/workflows/<name>.workflow.ts`:
@@ -332,23 +364,24 @@ claude-workflow-plugin/
 ├── skills/
 │   ├── workflow/
 │   │   ├── SKILL.md                   # Skill definition (init, run, list, plan, create)
-│   │   ├── src/
-│   │   │   ├── types.ts               # TypeScript type definitions
-│   │   │   ├── runtime.ts             # Plan builder, formatter, module loader
-│   │   │   └── validator.ts           # Minimal JSON Schema validator
-│   │   ├── scripts/
-│   │   │   └── init.ts                # Bootstrap script (generates .claude/workflows/)
-│   │   ├── templates/
-│   │   │   ├── single-agent.workflow.ts   # One agent + schema validation
-│   │   │   ├── multi-stage.workflow.ts    # implement → verify → fix pipeline
-│   │   │   ├── parallel-swarm.workflow.ts # N agents parallel + aggregate
-│   │   │   ├── verified-swarm.workflow.ts # build + 3-vote adversarial verify
-│   │   │   └── survey-round.workflow.ts   # one round of a convergence loop
+│   │   ├── src/                       # types.ts, runtime.ts, validator.ts
+│   │   ├── scripts/init.ts            # Bootstrap script (generates .claude/workflows/)
+│   │   ├── templates/                 # 5 archetype templates (*.workflow.ts)
 │   │   └── tests/                     # bun test — validator, runtime, templates
-│   └── orchestrate/
-│       ├── SKILL.md                   # Interactive project builder (7-step protocol)
-│       └── references/
-│           └── correctness.md         # Bun PR #30412 correctness mechanisms
+│   ├── orchestrate/
+│   │   ├── SKILL.md                   # Interactive project builder (7-step protocol)
+│   │   └── references/correctness.md  # Bun PR #30412 correctness mechanisms
+│   └── dataset/
+│       └── SKILL.md                   # Search the dataset; contribute run records
+├── dataset/
+│   ├── schema.json                    # JSON Schema for a dataset entry
+│   ├── entries/                       # one *.json run record per project
+│   ├── lib.ts                         # load / validate / search (shared)
+│   ├── search.ts                      # CLI: search the dataset
+│   ├── validate.ts                    # CLI: validate entries (CI gate)
+│   └── lib.test.ts                    # bun test
+├── mcp/dataset-server.ts              # stdio MCP server over the dataset
+├── .github/                           # issue forms, PR template, CI
 ├── examples/todo-api/                 # E2E trial spec for the orchestrate flow
 ├── tsconfig.json                      # strict typecheck config
 ├── package.json                       # dev tooling (test + typecheck)
@@ -366,7 +399,8 @@ claude-workflow-plugin/
 | File count | 53 workflow files | 5 templates + unlimited custom |
 | Scope | Zig→Rust migration | General-purpose |
 | Convergence loop | Live-async runtime (`agent()` returns a Promise) | Claude-driven; `survey-round` is the per-round plan |
-| Skills | — | `workflow` (run one) + `orchestrate` (drive a whole project) |
+| Skills | — | `workflow` (run one) + `orchestrate` (whole project) + `dataset` (search/contribute) |
+| Learning across runs | One-off migration | Dataset of run records, searched by future runs |
 
 ## Requirements
 

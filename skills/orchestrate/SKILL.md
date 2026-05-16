@@ -81,7 +81,12 @@ If a library cannot be resolved, flag it to the user — do not silently proceed
 
 **Goal:** a written architecture + design system before workflows are generated.
 
-Use `AskUserQuestion` + discussion. Cover:
+**First, search the dataset.** Use the `dataset` skill (`dataset_search` MCP tool,
+or `bun run dataset/search.ts`) by `domain` + `stack`. Surface the architecture
+and `lessons` of similar past projects to the user — let real precedent shape the
+questions. Cite the entry ids you drew from.
+
+Then use `AskUserQuestion` + discussion. Cover:
 
 1. **Backend architecture** — layering (e.g. controller/service/repository),
    data model, API style (REST/GraphQL/RPC), auth, error-handling strategy.
@@ -102,6 +107,8 @@ structure conventions if the project has a `CLAUDE.md`.
 **Goal:** one `.claude/workflows/*.workflow.ts` per project phase.
 
 1. If `.claude/workflows/` does not exist, run the `workflow` skill's `init`.
+   Search the dataset by `domain` again — see which archetype each phase used in
+   similar projects and how many rounds they took to converge.
 2. Split the project into ordered phases. A typical split:
    `scaffold → backend-contract → backend-impl → frontend-impl → integrate → test-sweep`.
 3. For each phase, create a workflow from the closest archetype template:
@@ -175,6 +182,9 @@ finished build, the per-phase results, and anything left for the user.
 
 ## Notes
 
+- **Close the loop:** once the build finishes, offer to contribute it to the
+  dataset via the `dataset` skill — domain, stack, architecture, the workflows
+  used, the outcome, the lessons. That is how the next run starts richer.
 - `orchestrate` never edits product code itself — it dispatches agents that do.
 - If the user interrupts, the `.claude/orchestrate/*.md` files are the resumable
   state. On resume, re-read them and continue from the last satisfied STOP gate.

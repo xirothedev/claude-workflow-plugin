@@ -1,0 +1,33 @@
+{
+  "id": "saas-dashboard-next-prisma",
+  "domain": "saas-dashboard",
+  "summary": "Multi-tenant analytics dashboard with auth, charts and a settings area",
+  "stack": ["next.js", "react", "typescript", "prisma", "postgresql", "tailwindcss"],
+  "architecture": {
+    "backend": "Next.js route handlers -> service layer -> Prisma repository; tenant id resolved in middleware",
+    "frontend": "App Router; React Server Components for data, client components for interactivity, TanStack Query for mutations",
+    "designSystem": "Tailwind tokens, shadcn/ui components, 4px spacing scale, dark mode via CSS variables",
+    "notes": ["the RSC vs client-component boundary was decided per route during the architecture interview"]
+  },
+  "workflows": [
+    { "phase": "scaffold", "archetype": "single-agent", "agents": 1 },
+    { "phase": "backend-contract", "archetype": "parallel-swarm", "agents": 12, "notes": "one agent per Prisma model + API contract" },
+    { "phase": "backend-impl", "archetype": "verified-swarm", "agents": 40 },
+    { "phase": "frontend-impl", "archetype": "verified-swarm", "agents": 55, "notes": "3-vote verify caught fake loading states" },
+    { "phase": "integrate", "archetype": "multi-stage", "agents": 14 },
+    { "phase": "test-sweep", "archetype": "survey-round", "agents": 61 }
+  ],
+  "outcome": { "converged": true, "rounds": 5, "totalAgents": 183, "note": "frontend-impl was the largest phase" },
+  "lessons": [
+    "Resolving the tenant id in one middleware, decided during the architecture interview, kept every downstream agent from re-implementing tenant scoping.",
+    "Verified-swarm on the frontend caught components that rendered a spinner forever instead of handling the empty state.",
+    "Pinning the Prisma and Next.js versions via context7 before synthesis stopped agents mixing pages-router and app-router APIs."
+  ],
+  "pitfalls": [
+    "An early run skipped the backend-contract phase and frontend agents invented API shapes; adding it as an explicit phase fixed the drift."
+  ],
+  "tags": ["saas", "multi-tenant", "auth", "rsc", "charts"],
+  "contributor": { "name": "xirothedev", "url": "https://github.com/xirothedev" },
+  "contributedAt": "2026-05-16",
+  "license": "CC0-1.0"
+}

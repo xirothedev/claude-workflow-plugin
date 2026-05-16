@@ -5,8 +5,9 @@
   "description": "Dev tooling for the claude-workflow-plugin repo (typecheck + tests). Not shipped to plugin consumers.",
   "type": "module",
   "scripts": {
-    "test": "bun test skills/workflow/tests",
-    "typecheck": "tsc --noEmit"
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "dataset:validate": "bun run dataset/validate.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",

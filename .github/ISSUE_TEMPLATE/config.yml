@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Bun PR #30412 — the orchestration pattern this plugin imitates
+    url: https://github.com/oven-sh/bun/pull/30412
+    about: Background reading on the convergence-loop / correctness mechanisms.
+  - name: Dataset contribution guide
+    url: https://github.com/xirothedev/claude-workflow-plugin/blob/main/dataset/README.md
+    about: How to add a run record to the workflow dataset.

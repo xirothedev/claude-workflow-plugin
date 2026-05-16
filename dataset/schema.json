@@ -1,0 +1,61 @@
+{
+  "type": "object",
+  "required": ["id", "domain", "summary", "stack", "architecture", "workflows", "outcome", "lessons", "contributor", "contributedAt"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "description": "kebab-case unique id; also the file name" },
+    "domain": { "type": "string", "description": "project category, e.g. rest-api, saas-dashboard, cli-tool, mobile-app, data-pipeline" },
+    "summary": { "type": "string", "description": "one-line description of the project" },
+    "stack": { "type": "array", "items": { "type": "string" }, "description": "languages, frameworks, runtimes, key libraries" },
+    "architecture": {
+      "type": "object",
+      "required": ["backend", "frontend"],
+      "additionalProperties": false,
+      "properties": {
+        "backend": { "type": "string", "description": "backend layering / API style; 'n/a' if none" },
+        "frontend": { "type": "string", "description": "frontend architecture; 'n/a' if none" },
+        "designSystem": { "type": "string", "description": "design tokens / component approach" },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "workflows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["phase", "archetype"],
+        "additionalProperties": false,
+        "properties": {
+          "phase": { "type": "string", "description": "project phase this workflow drove" },
+          "archetype": { "type": "string", "enum": ["single-agent", "multi-stage", "parallel-swarm", "verified-swarm", "survey-round"] },
+          "agents": { "type": "integer", "description": "total agents dispatched for this phase" },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "required": ["converged"],
+      "additionalProperties": false,
+      "properties": {
+        "converged": { "type": "boolean", "description": "did every phase reach its convergence criterion" },
+        "rounds": { "type": "integer", "description": "convergence-loop rounds for the longest sweep phase" },
+        "totalAgents": { "type": "integer" },
+        "note": { "type": "string" }
+      }
+    },
+    "lessons": { "type": "array", "items": { "type": "string" }, "description": "best practices that worked — the searchable payload" },
+    "pitfalls": { "type": "array", "items": { "type": "string" }, "description": "what went wrong and how it was caught" },
+    "tags": { "type": "array", "items": { "type": "string" }, "description": "free keywords to aid search" },
+    "contributor": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "url": { "type": "string" }
+      }
+    },
+    "contributedAt": { "type": "string", "description": "ISO date, e.g. 2026-05-16" },
+    "license": { "type": "string", "description": "entry license; default CC0-1.0" }
+  }
+}
