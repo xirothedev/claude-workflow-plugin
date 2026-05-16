@@ -4,6 +4,8 @@ Multi-phase agent orchestration plugin for [Claude Code](https://docs.anthropic.
 
 Define workflows as TypeScript modules. The runtime builds an orchestration plan with agents, schemas, and execution stages. Claude Code executes the plan — spawning agents in parallel, validating structured JSON output, and chaining results between stages.
 
+Two skills ship with the plugin: **`workflow`** bootstraps and runs individual workflows; **`orchestrate`** drives a whole project — interviewing you on the stack, resolving libraries via context7, synthesising workflows, and dispatching agents in a convergence loop until the build is done.
+
 ## How It Works
 
 ```
@@ -131,6 +133,53 @@ bun run .claude/workflows/cli.ts show parallel-swarm '{
 ```
 
 Use for: bulk analysis, reviewing multiple files/PRs, classification across items.
+
+### verified-swarm
+
+Parallel implement → **3-vote adversarial verify** per item → conditional fix → aggregate.
+
+```bash
+bun run .claude/workflows/cli.ts show verified-swarm '{
+  "items": ["src/a.ts", "src/b.ts"],
+  "instruction": "Port to the new API"
+}'
+```
+
+Use for: any phase where an agent could fake "done" by suppressing errors. Three
+independent voters decide; Fix runs only when the majority rejects.
+
+### survey-round
+
+One round of a convergence loop: **Survey → Fix → Verify** (multi-vote).
+
+```bash
+bun run .claude/workflows/cli.ts show survey-round '{
+  "targets": ["TODO at src/x.ts:12"],
+  "instruction": "Replace every TODO with a real implementation",
+  "round": 1
+}'
+```
+
+Use for: sweep-style work (fix every crash, every TODO). The static plan models
+one round; the `orchestrate` skill drives the loop until it converges.
+
+## Orchestrate: build a whole project
+
+The `orchestrate` skill turns a project brief into a finished build. It is a
+7-step conversation protocol:
+
+1. **Intake** — you dump project context; Claude writes a shared `CONTEXT.md`.
+2. **Tech interview** — Claude asks about languages, frameworks, skills, MCP servers, priorities.
+3. **Library resolution** — every library is pinned via the context7 MCP server.
+4. **Architecture interview** — backend/frontend architecture and the design system.
+5. **Workflow synthesis** — one `*.workflow.ts` per project phase, from the archetype templates.
+6. **Phase summary + confirm** — Claude summarises each phase; nothing runs until you confirm.
+7. **Dispatch loop** — agents are dispatched stage by stage, output validated, results chained, and sweep phases loop until they converge.
+
+Ask Claude to *"orchestrate a project"* (or *"build this project"*) to start it.
+The correctness mechanisms it applies — multi-vote verify, verify-until-dry,
+explicit convergence — are distilled from Bun PR #30412 in
+`skills/orchestrate/references/correctness.md`.
 
 ## Writing Custom Workflows
 
@@ -280,18 +329,29 @@ claude-workflow-plugin/
 ├── .claude-plugin/
 │   ├── plugin.json                    # Plugin manifest
 │   └── marketplace.json               # Marketplace manifest (/plugin install)
-├── skills/workflow/
-│   ├── SKILL.md                       # Skill definition (init, run, list, plan, create)
-│   ├── src/
-│   │   ├── types.ts                   # TypeScript type definitions
-│   │   ├── runtime.ts                 # Plan builder, formatter, module loader
-│   │   └── validator.ts              # Minimal JSON Schema validator
-│   ├── scripts/
-│   │   └── init.ts                   # Bootstrap script (generates .claude/workflows/)
-│   └── templates/
-│       ├── single-agent.workflow.ts   # One agent + schema validation
-│       ├── multi-stage.workflow.ts    # implement → verify → fix pipeline
-│       └── parallel-swarm.workflow.ts # N agents parallel + aggregate
+├── skills/
+│   ├── workflow/
+│   │   ├── SKILL.md                   # Skill definition (init, run, list, plan, create)
+│   │   ├── src/
+│   │   │   ├── types.ts               # TypeScript type definitions
+│   │   │   ├── runtime.ts             # Plan builder, formatter, module loader
+│   │   │   └── validator.ts           # Minimal JSON Schema validator
+│   │   ├── scripts/
+│   │   │   └── init.ts                # Bootstrap script (generates .claude/workflows/)
+│   │   ├── templates/
+│   │   │   ├── single-agent.workflow.ts   # One agent + schema validation
+│   │   │   ├── multi-stage.workflow.ts    # implement → verify → fix pipeline
+│   │   │   ├── parallel-swarm.workflow.ts # N agents parallel + aggregate
+│   │   │   ├── verified-swarm.workflow.ts # build + 3-vote adversarial verify
+│   │   │   └── survey-round.workflow.ts   # one round of a convergence loop
+│   │   └── tests/                     # bun test — validator, runtime, templates
+│   └── orchestrate/
+│       ├── SKILL.md                   # Interactive project builder (7-step protocol)
+│       └── references/
+│           └── correctness.md         # Bun PR #30412 correctness mechanisms
+├── examples/todo-api/                 # E2E trial spec for the orchestrate flow
+├── tsconfig.json                      # strict typecheck config
+├── package.json                       # dev tooling (test + typecheck)
 └── README.md
 ```
 
@@ -303,8 +363,10 @@ claude-workflow-plugin/
 | `agent()` | Calls internal API | Records plan, Claude spawns via Agent tool |
 | `pipeline()` | Same pattern | Same pattern |
 | Schema validation | In-process | Claude validates + one retry |
-| File count | 53 workflow files | 3 templates + unlimited custom |
+| File count | 53 workflow files | 5 templates + unlimited custom |
 | Scope | Zig→Rust migration | General-purpose |
+| Convergence loop | Live-async runtime (`agent()` returns a Promise) | Claude-driven; `survey-round` is the per-round plan |
+| Skills | — | `workflow` (run one) + `orchestrate` (drive a whole project) |
 
 ## Requirements
 
