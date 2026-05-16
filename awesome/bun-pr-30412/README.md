@@ -188,6 +188,36 @@ per round, so the outer loop runs until a round is clean.
 
 ---
 
+## Why six ports — coverage of all 53 files
+
+Bun's `.claude/workflows/` holds **53 `.workflow.js` files**, but they are not
+53 distinct designs. They are **6 orchestration archetypes** instantiated 53
+times — each file differs in its *prompts*, *JSON schemas*, and *target files*
+(the Zig→Rust domain detail), not in its *control-flow structure*.
+
+Example: `phase-d-todo-sweep` and `phase-f-accessor-sweep` are the same
+"sweep" archetype — `grep survey → pipeline implement → verify` — they only
+swap the grep pattern (`todo!()` vs an accessor idiom). Porting both would
+duplicate the structure and copy domain prose; it adds no orchestration insight.
+
+The 6 ports here cover the full **structural** surface. Every one of the other
+47 files maps onto a ported archetype:
+
+| Archetype (ported)       | Other Bun files sharing the structure |
+|--------------------------|----------------------------------------|
+| `phase-a-port` — pipeline | `phase-e-body-port`, `phase-e-proper-port`, `phase-d-bundler-perfile`, `phase-d-subtree-batch` |
+| `phase-b1-tier` — swarm + in-agent loop | `phase-b0-cyclebreak`, `b0-movein`, `b0-moveout`, `b0-verify`, `b2-cycle`, `b2-fill`, `b2-fill-blocked`, `b2-fix-bugs`, `b2-keystone`, `b2-ungate-tier`, `b2-verify`, `phase-d-crate-shard`, `d-bundler-shard`, `d-build-queue`, `d-recursive-ungate`, `d-blocked-on-resolve`, `phase-e-mass-ungate`, `phase-e-test-bringup`, `phase-h-ci-tasks` |
+| `phase-c-panic-swarm` — round-loop convergence | `phase-h-windows-singlefix`, `phase-h-windows-errors` |
+| `phase-d-todo-sweep` — sweep (grep → fix sites) | `phase-d-unsafe-audit`, `phase-e-scopeguard-sweep`, `phase-f-accessor-sweep`, `phase-h-unsafe-wrap`, `phase-f-reviewed-refactor` |
+| `lifetime-classify` — classify/audit + vote verify | `phase-h-idioms-audit`, `h-libuv-audit`, `h-classify-issues`, `h-dedup`, `h-deep-dive`, `h-diff-review`, `h-main-parity`, `h-portnotes-survey`, `porting-md-zigleakage` |
+| `phase-g-test-swarm` — round loop + review gate | `phase-g-test-swarm-isolated`, `g-test-swarm-v3`, `g-mega-swarm`, `phase-f-test-swarm`, `f-probe-swarm`, `phase-h-windows-bughunt`, `h-windows-bughunt-wt`, `h-windows-testfix` |
+
+53 = 6 ported + 47 structural variations. To study the *orchestration* — which
+is the point of this folder — six is the complete set. Porting more would only
+add Zig→Rust domain content, not new patterns.
+
+---
+
 ## Runtime model
 
 ### Bun's model — a live async runtime
